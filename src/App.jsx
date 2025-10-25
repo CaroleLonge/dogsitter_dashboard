@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function currency(n) {
-  if (!n && n !== 0) return "—";
+  if (n === "" || n === null || n === undefined) return "—";
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
@@ -9,25 +9,21 @@ function currency(n) {
 }
 
 export default function DogSitterProDashboard() {
-  // Données simulées (test)
-  const [goalMonthly] = useState(2500);
-  const [currentRevenue] = useState(1850);
-  const [pendingRevenue] = useState(580);
-  const [charges] = useState(620);
-  const [clients] = useState([
-    { name: "⭐ Sophie Martin", amount: 480 },
-    { name: "⭐ Lucas & Max", amount: 380 },
-    { name: "⚠️ Famille Durand", amount: 350, alert: true },
-  ]);
-  const [hours] = useState({ care: 25, travel: 10, admin: 5 });
+  const [goalMonthly, setGoalMonthly] = useState(2500);
+  const [currentRevenue, setCurrentRevenue] = useState(1850);
+  const [pendingRevenue, setPendingRevenue] = useState(580);
+  const [charges, setCharges] = useState(620);
+  const [hoursCare, setHoursCare] = useState(25);
+  const [hoursTravel, setHoursTravel] = useState(10);
+  const [hoursAdmin, setHoursAdmin] = useState(5);
 
-  // Calculs
-  const totalForecast = currentRevenue + pendingRevenue;
-  const net = totalForecast - charges;
+  const totalForecast = Number(currentRevenue) + Number(pendingRevenue);
+  const net = totalForecast - Number(charges);
   const progress = Math.min((currentRevenue / goalMonthly) * 100, 100);
-  const totalHours = hours.care + hours.travel + hours.admin;
+  const totalHours =
+    Number(hoursCare) + Number(hoursTravel) + Number(hoursAdmin);
   const hourlyRate = currentRevenue / totalHours;
-  const travelRatio = Math.round((hours.travel / totalHours) * 100);
+  const travelRatio = Math.round((hoursTravel / totalHours) * 100);
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] text-gray-800 font-sans antialiased flex flex-col items-center">
@@ -41,18 +37,30 @@ export default function DogSitterProDashboard() {
         </header>
 
         {/* Bloc 1 : Ton mois */}
-        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-3">
+        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
           <h2 className="text-lg font-medium">💡 Ton mois en un coup d’œil</h2>
-          <div className="flex justify-between items-center text-sm">
-            <div>
-              <div className="text-gray-500">Revenus encaissés</div>
-              <div className="text-xl font-semibold">{currency(currentRevenue)}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-gray-500">Objectif</div>
-              <div className="text-xl font-semibold">{currency(goalMonthly)}</div>
-            </div>
+
+          <div className="space-y-2 text-sm">
+            <label className="flex justify-between items-center">
+              <span>Revenus encaissés :</span>
+              <input
+                type="number"
+                value={currentRevenue}
+                onChange={(e) => setCurrentRevenue(e.target.value)}
+                className="w-24 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
+            <label className="flex justify-between items-center">
+              <span>Objectif mensuel :</span>
+              <input
+                type="number"
+                value={goalMonthly}
+                onChange={(e) => setGoalMonthly(e.target.value)}
+                className="w-24 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
           </div>
+
           <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mt-2">
             <div
               className="h-2 bg-gray-700 rounded-full"
@@ -64,76 +72,89 @@ export default function DogSitterProDashboard() {
           </p>
         </section>
 
-        {/* Bloc 2 : Clients fiables */}
-        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-3">
-          <h2 className="text-lg font-medium">👥 Tes clients fiables</h2>
-          <ul className="text-sm space-y-2">
-            {clients.map((c, idx) => (
-              <li
-                key={idx}
-                className={`flex justify-between ${
-                  c.alert ? "text-[#E68A00]" : "text-gray-700"
-                }`}
-              >
-                <span>{c.name}</span>
-                <span className="font-medium">{currency(c.amount)}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-gray-600">
-            Ces clients t’apportent 60 % de ton chiffre et 90 % de ta tranquillité 💚
-          </p>
-        </section>
-
-        {/* Bloc 3 : Stabilité financière */}
-        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-3">
+        {/* Bloc 2 : Stabilité financière */}
+        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
           <h2 className="text-lg font-medium">💰 Stabilité financière</h2>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>Reste à encaisser :</div>
-            <div className="text-right font-medium">{currency(pendingRevenue)}</div>
-            <div>Projection fin de mois :</div>
-            <div className="text-right font-medium">{currency(totalForecast)}</div>
-            <div>Charges estimées :</div>
-            <div className="text-right font-medium text-gray-600">
-              -{currency(charges)}
-            </div>
+
+          <div className="space-y-2 text-sm">
+            <label className="flex justify-between items-center">
+              <span>Reste à encaisser :</span>
+              <input
+                type="number"
+                value={pendingRevenue}
+                onChange={(e) => setPendingRevenue(e.target.value)}
+                className="w-24 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
+            <label className="flex justify-between items-center">
+              <span>Charges estimées :</span>
+              <input
+                type="number"
+                value={charges}
+                onChange={(e) => setCharges(e.target.value)}
+                className="w-24 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
           </div>
+
           <hr className="border-gray-200 my-2" />
+
+          <div className="flex justify-between text-sm">
+            <span>Projection fin de mois :</span>
+            <span className="font-semibold">{currency(totalForecast)}</span>
+          </div>
           <div className="flex justify-between text-base font-semibold">
-            <div>Net estimé :</div>
-            <div>{currency(net)}</div>
+            <span>Net estimé :</span>
+            <span>{currency(net)}</span>
           </div>
-          <p className="text-sm text-gray-600">
-            💚 Ton mois est sécurisé 🐶
-          </p>
+          <p className="text-sm text-gray-600">💚 Ton mois est sécurisé 🐶</p>
         </section>
 
-        {/* Bloc 4 : Équilibre de vie */}
-        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-3">
+        {/* Bloc 3 : Équilibre de vie */}
+        <section className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
           <h2 className="text-lg font-medium">⚖️ Équilibre de vie</h2>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>Heures de garde :</div>
-            <div className="text-right font-medium">{hours.care} h</div>
-            <div>Heures de trajet :</div>
-            <div className="text-right font-medium">
-              {hours.travel} h{" "}
-              {travelRatio > 20 && <span className="text-[#E68A00]">⚠️</span>}
-            </div>
-            <div>Heures d’admin :</div>
-            <div className="text-right font-medium">{hours.admin} h</div>
-            <div>Total :</div>
-            <div className="text-right font-medium">{totalHours} h</div>
+
+          <div className="space-y-2 text-sm">
+            <label className="flex justify-between items-center">
+              <span>Heures de garde :</span>
+              <input
+                type="number"
+                value={hoursCare}
+                onChange={(e) => setHoursCare(e.target.value)}
+                className="w-20 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
+            <label className="flex justify-between items-center">
+              <span>Heures de trajet :</span>
+              <input
+                type="number"
+                value={hoursTravel}
+                onChange={(e) => setHoursTravel(e.target.value)}
+                className="w-20 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
+            <label className="flex justify-between items-center">
+              <span>Heures d’admin :</span>
+              <input
+                type="number"
+                value={hoursAdmin}
+                onChange={(e) => setHoursAdmin(e.target.value)}
+                className="w-20 border border-gray-300 rounded-md text-right px-2 py-1"
+              />
+            </label>
           </div>
+
           <div className="text-sm text-gray-600">
-            Revenu horaire réel : <strong>{currency(hourlyRate)}/h</strong>
+            Total : <strong>{totalHours} h</strong> — Revenu horaire :{" "}
+            <strong>{currency(hourlyRate)}/h</strong>
           </div>
           <p className="text-sm text-gray-600">
-            💡 Tes {hours.travel}h de trajets = {travelRatio}% de ton temps.  
-            Regrouper 2 clients du même quartier te libérerait environ 2h/semaine.
+            💡 Tes {hoursTravel}h de trajets = {travelRatio}% de ton temps.  
+            Regrouper 2 clients du même quartier te libérerait ~2h/semaine.
           </p>
         </section>
 
-        {/* Footer doux */}
+        {/* Footer */}
         <footer className="text-center text-xs text-gray-400 pt-4">
           💚 Ton calme est ta force. Prends soin de toi aussi 🐾
         </footer>
